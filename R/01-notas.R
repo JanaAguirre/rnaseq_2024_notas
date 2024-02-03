@@ -1,37 +1,26 @@
-# Notas Miércoles
+library("sessioninfo") ##Da información sobre la sesión de R
+library("here") ## Permite referenciar archivos al directorio top-level
+library("ggplot2") ## Esta librería permite hacer gráficos de alta calidad
 
-## Lets build our first SummarizedExperiment object
-library("SummarizedExperiment")
-## ?SummarizedExperiment
+## Hello world
+print("Soy Leo")
 
-## De los ejemplos en la ayuda oficial
+## Directorios
+dir_plots <- here::here("figuras")
+dir_rdata <- here::here("processed-data")
 
-## Creamos los datos para nuestro objeto de tipo SummarizedExperiment
-## para 200 genes a lo largo de 6 muestras
-nrows <- 200
-ncols <- 6
-## Números al azar de cuentas
-set.seed(20210223)
-counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
-## Información de nuestros genes
-rowRanges <- GRanges(
-  rep(c("chr1", "chr2"), c(50, 150)),
-  IRanges(floor(runif(200, 1e5, 1e6)), width = 100),
-  strand = sample(c("+", "-"), 200, TRUE),
-  feature_id = sprintf("ID%03d", 1:200)
+## Crear directorio para las figuras y archivos
+dir.create(dir_plots, showWarnings = FALSE)
+dir.create(dir_rdata, showWarnings = FALSE)
+
+## Hacer una imagen de ejemplo
+pdf(file.path(dir_plots, "mtcars_gear_vs_mpg.pdf"),
+    useDingbats = FALSE
 )
-names(rowRanges) <- paste0("gene_", seq_len(length(rowRanges)))
-## Información de nuestras muestras
-colData <- DataFrame(
-  Treatment = rep(c("ChIP", "Input"), 3),
-  row.names = LETTERS[1:6]
-)
-## Juntamos ahora toda la información en un solo objeto de R
-rse <- SummarizedExperiment(
-  assays = SimpleList(counts = counts),
-  rowRanges = rowRanges,
-  colData = colData
-)
+ggplot(mtcars, aes(group = gear, y = mpg)) +
+  geom_boxplot()
+dev.off()
 
-## Exploremos el objeto resultante
-dim(rse)
+## Para reproducir mi código
+options(width = 120)
+sessioninfo::session_info()
